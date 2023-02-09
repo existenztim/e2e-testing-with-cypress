@@ -101,7 +101,7 @@ describe("Control that API fixture works", () => {
 describe("Fixture Error handling", () => {
   it("Should return p tag when no movies is found", () => {
     cy.intercept("GET", "http://omdbapi.com/*", {fixture: "emptyResponse"});
-    cy.get("input#searchText").type("2350sdjfxldejs_a"); 
+    cy.get("input#searchText").type("2350sdjfxldejs_a"); // or type nothing
 
     cy.get("form").submit();
 
@@ -118,5 +118,4 @@ describe("Fixture Error handling", () => {
     cy.get("p").contains("Inga sökresultat att visa").should("exist");
     cy.get("#movie-container").find(".movie").should("have.length", 0);
   })
-
 });
