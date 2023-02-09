@@ -18,7 +18,7 @@ it("Should expect to find all HTML on pageload", () => {
  *                Submit functionality
  ****************************************************/
 
-describe("Testing submit by keypress,click, and submitevent",() =>{
+describe("Testing submit by keypress, click, and submitevent",() =>{
   it("Should submit form by keypress", () => {
       cy.get("#searchForm").should("exist");
       cy.get("#searchText").type("Batman").should("have.value","Batman");
@@ -51,6 +51,7 @@ describe("Testing submit by keypress,click, and submitevent",() =>{
 /*****************************************************
  *                  All HTML on submit
  ****************************************************/
+
 describe("All rendered HTML after submit", () => {
   it("Should print HTML for all movies", () => {
     cy.get("input#searchText").type("Superman"); 
@@ -76,7 +77,7 @@ describe("All rendered HTML after submit", () => {
 
 describe("Control that API fixture works", () => {
   it("Should get mock data with correct url", () => {
-    cy.intercept("GET", "http://omdbapi.com/?apikey=416ed51a&s=*", {fixture: "movieResponse"}).as("omdbCall");
+    cy.intercept("GET", "http://omdbapi.com/*", {fixture: "movieResponse"}).as("omdbCall");
     cy.get("#searchText").type("hey").should("have.value","hey");
 
     cy.get("form").submit();
@@ -86,7 +87,7 @@ describe("Control that API fixture works", () => {
   })
 
   it("Should print HTML for all test objects in fixture", () => {
-    cy.intercept("GET", "http://omdbapi.com/?apikey=416ed51a&s=*", {fixture: "movieResponse"});
+    cy.intercept("GET", "http://omdbapi.com/*", {fixture: "movieResponse"});
     cy.get("input#searchText").type("Superman"); //Superman movies should not be generated
 
     cy.get("form").submit();
@@ -95,10 +96,22 @@ describe("Control that API fixture works", () => {
     cy.get(".movie > img").should("exist");
     cy.get("#movie-container").find(".movie").should("have.length", 10);
   })
-  
-  it("Should not return any movies", () => {
-    cy.intercept("GET", "http://omdbapi.com/?apikey=416ed51a&s=*", {fixture: "emptyResponse"});
+});
+
+describe("Fixture Error handling", () => {
+  it("Should return p tag when no movies is found", () => {
+    cy.intercept("GET", "http://omdbapi.com/*", {fixture: "emptyResponse"});
     cy.get("input#searchText").type("2350sdjfxldejs_a"); 
+
+    cy.get("form").submit();
+
+    cy.get("p").contains("Inga sökresultat att visa").should("exist");
+    cy.get("#movie-container").find(".movie").should("have.length", 0);
+  })
+
+  it("Should return p tag when data is in wrong format", () => {
+    cy.intercept("GET", "http://omdbapi.com/*", {fixture: "errorResponse"});
+    cy.get("input#searchText").type("Batman"); 
 
     cy.get("form").submit();
 
